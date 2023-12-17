@@ -3,54 +3,36 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using UnityEngine.UI;
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class EventMultiArgs : UdonSharpBehaviour
 {
-    public UnityEngine.UI.Text text1;
-    public UnityEngine.UI.Text text2;
+    public Text Text1;
+    public Text Text2;
 
-    [UdonSynced, FieldChangeCallback(nameof(EventFlag1))]
-    private bool _eventFlag1;
-    [UdonSynced, FieldChangeCallback(nameof(EventFlag2))]
-    private bool _eventFlag2;
-    [UdonSynced, FieldChangeCallback(nameof(Arg1))]
-    private int _arg1;
-    [UdonSynced, FieldChangeCallback(nameof(Arg2))]
-    private int _arg2;
-    [UdonSynced, FieldChangeCallback(nameof(Arg3))]
-    private int _arg3;
+    [UdonSynced]
+    public bool EventFlag1;
+    [UdonSynced]
+    public bool EventFlag2;
+    [UdonSynced]
+    public int Arg1;
+    [UdonSynced]
+    public int Arg2;
+    [UdonSynced]
+    public int Arg3;
 
-    public bool EventFlag1
-    {
-        set => _eventFlag1 = value;
-        get => _eventFlag1;
-    }
-    public bool EventFlag2
-    {
-        set => _eventFlag2 = value;
-        get => _eventFlag2;
-    }
-    public int Arg1
-    {
-        set => _arg1 = value;
-        get => _arg1;
-    }
-    public int Arg2
-    {
-        set => _arg2 = value;
-        get => _arg2;
-    }
-    public int Arg3
-    {
-        set => _arg3 = value;
-        get => _arg3;
-    }
-    private bool _prevEventFlag1;
-    private bool _prevEventFlag2;
+    bool EventFlag1Sub;
+    bool EventFlag2Sub;
+    int Arg1Sub;
+    int Arg2Sub;
+    int Arg3Sub;
 
-    private int _cnt;
-    private int _cnt2;
+    bool PrevEventFlag1;
+    bool PrevEventFlag2;
+
+    int Cnt;
+    int Cnt2;
 
     public void OnClick1()
     {
@@ -58,8 +40,8 @@ public class EventMultiArgs : UdonSharpBehaviour
         {
             Networking.SetOwner(Networking.LocalPlayer, gameObject);
         }
-        _cnt++;
-        SendMyEvent1(_cnt, _cnt+1);
+        Cnt++;
+        SendMyEvent1(Cnt, Cnt+1);
     }
     public void OnClick2()
     {
@@ -67,25 +49,30 @@ public class EventMultiArgs : UdonSharpBehaviour
         {
             Networking.SetOwner(Networking.LocalPlayer, gameObject);
         }
-        _cnt2++;
-        SendMyEvent2(_cnt2);
+        Cnt2++;
+        SendMyEvent2(Cnt2);
     }
 
     public void SendMyEvent1(int arg1, int arg2)
     {
-        Arg1 = arg1;
-        Arg2 = arg2;
-        EventFlag1 = !EventFlag1;
+        Arg1Sub = arg1;
+        Arg2Sub = arg2;
+        EventFlag1Sub = !EventFlag1Sub;
         RequestSerialization();
     }
     public void SendMyEvent2(int arg3)
     {
-        Arg3 = arg3;
-        EventFlag2 = !EventFlag2;
+        Arg3Sub = arg3;
+        EventFlag2Sub = !EventFlag2Sub;
         RequestSerialization();
     }
     public override void OnPreSerialization()
     {
+        EventFlag1 = EventFlag1Sub;
+        EventFlag2 = EventFlag2Sub;
+        Arg1 = Arg1Sub;
+        Arg2 = Arg2Sub;
+        Arg3 = Arg3Sub;
         UpdateText();
     }
     public override void OnDeserialization()
@@ -94,15 +81,15 @@ public class EventMultiArgs : UdonSharpBehaviour
     }
     private void UpdateText()
     {
-        if (EventFlag1 != _prevEventFlag1)
+        if (EventFlag1 != PrevEventFlag1)
         {
-            text1.text = $"Arg1:{Arg1}, Arg2:{Arg2}";
-            _prevEventFlag1 = EventFlag1;
+            Text1.text = $"Arg1:{Arg1}, Arg2:{Arg2}";
+            PrevEventFlag1 = EventFlag1;
         }
-        if (EventFlag2 != _prevEventFlag2)
+        if (EventFlag2 != PrevEventFlag2)
         {
-            text2.text = $"Arg3:{Arg3}";
-            _prevEventFlag2 = EventFlag2;
+            Text2.text = $"Arg3:{Arg3}";
+            PrevEventFlag2 = EventFlag2;
         }
     }
 }
